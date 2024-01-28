@@ -4,28 +4,32 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser';
 import { Request,Response } from "express";
 import authRouter from './routes/auth.routes.js';
+import { PrismaClient } from '@prisma/client';
+import AuthMiddleware from './middlewares/AuthMiddleware.js';
 
+
+
+const allowedOrigins = ['http://localhost:5173','https://squadlink.vercel.app']; 
 
 const app = express();
-
-
-const allowedOrigins = ['http://localhost:5173'];
-
 app
   .use(
     cors({
       origin: allowedOrigins,
-      credentials:true
+      credentials:true,
     })
   )
   .use(express.json())
   .use(cookieParser())
-  
+  .use(AuthMiddleware)
   .get('/',(req:Request,res:Response)=>{
       res.send('hello world')
   })
   .use('/api',authRouter)
   
+ 
+
+
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
