@@ -10,7 +10,7 @@ const generateAccessToken= (id:number,name:string) => {
       id,
       name
     }
-    return jwt.sign(payload,secretKey,{expiresIn:'24h'})
+    return jwt.sign(payload,secretKey,{expiresIn:'200h'})
   }
 
   const prisma = new PrismaClient();
@@ -27,23 +27,22 @@ const generateAccessToken= (id:number,name:string) => {
                 return res.status(400).json({message:`user ${nickname} already exist`})
             }
             const hash = bcrypt.hashSync(password, saltRounds);
-            console.log(hash)
+            
             const user={
                 ...req.body
             }
            
-            
             const newUser= await prisma.user.create({data:{...user, password:hash}})
             res.json(newUser)
         } catch (error) {
-         console.log(error)
+        
             res.status(400).json({message:'reg error, try again'})
         }
     }
     login= async (req:Request,res:Response) => {
         const {nickname,password}=req.body 
 
-        const candidate = await prisma.user.findFirst({where:{nickname:nickname}})
+        const candidate = await prisma.user.findFirst({where:{nickname:nickname},include:{csgo_data:true}})
         if(!candidate){
             
             return res.status(404).json('Uncorrect login or password')
@@ -62,12 +61,11 @@ const generateAccessToken= (id:number,name:string) => {
     
             const token = req.cookies.token
             if(!token){
-             return res.status(403).json({message:'user not authorized'})
+             return res.status(404).json({message:'user not authorized'})
             }
-            const user :JwtPayload  =jwt.verify(token,secretKey) as JwtPayload
+            const user :JwtPayload = jwt.verify(token,secretKey) as JwtPayload
             
-            
-            const candidate = await prisma.user.findFirst({where:{nickname:user.name}})
+            const candidate = await prisma.user.findFirst({where:{nickname:user.name},include:{csgo_data:true}})
             
             
             if(candidate) return res.status(200).json({...candidate,password:undefined,email:undefined})
