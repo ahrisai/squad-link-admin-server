@@ -20,7 +20,7 @@ model User {
   description  String?
   birthday     String
   valorant_data Valorant_Data? 
-  csgo_data     Csgo_data?
+  cs2_data     Cs2_data?
   teams         Team[]
 }
 
@@ -31,7 +31,16 @@ model Valorant_Data {
   
 }
 
-model Csgo_data {
+
+model Team {
+  id     Int   @id @default(autoincrement())
+  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int @unique 
+  
+}
+
+
+model Cs2_data {
   id           Int    @id @default(autoincrement())
   user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       Int    @unique
@@ -43,43 +52,39 @@ model Csgo_data {
   wins         Int
   hs           Float
   lvlImg       String
-  elo Int
+  elo          Int
+  roles        Cs2_dataCs2Roles[] 
+  maps         Cs2_dataCs2Maps[]
 }
 
-model Team {
-  id     Int   @id @default(autoincrement())
-  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int @unique 
+model Cs2Roles {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  roles        Cs2_dataCs2Roles[]
+}
+
+model Cs2Maps {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  maps        Cs2_dataCs2Maps []
   
 }
 
+model Cs2_dataCs2Roles {
+ 
+  cs2_data    Cs2_data @relation(fields: [cs2_dataId], references: [id],onDelete: Cascade)
+  cs2_dataId  Int
+  cs2Role      Cs2Roles    @relation(fields: [cs2RoleId], references: [id])
+  cs2RoleId    Int
+  @@id([cs2_dataId, cs2RoleId])
+}
 
+model Cs2_dataCs2Maps {
+  cs2_data    Cs2_data @relation(fields: [cs2_dataId], references: [id], onDelete: Cascade)
+  cs2_dataId  Int
+  cs2Map Cs2Maps @relation(fields: [cs2MapId], references: [id])
+  cs2MapId Int
 
+  @@id([cs2_dataId, cs2MapId])
 
-
-// export interface User{
-//     id:number,
-//     nickname:string,
-//     email:string,
-//     password:string,
-//     user_avatar:Blob,
-//     description:string,
-//     gender:string,
-//     birthday:string,
-//     valorant_data:ValorantData,
-//     csgo_data:CsGoData,
-//     teams:Team[]
-// }
-
-// interface ValorantData{
-// userId:number
-// }
-
-// interface CsGoData{
-// userId:number
-    
-// }
-
-// interface Team{
-//     ownerId:number
-// }
+}

@@ -1,15 +1,11 @@
-import { Router } from 'express'
-import { check } from "express-validator";
+import { Router } from "express";
 
-import AuthController from '../controllers/AuthController.js'
+import AuthController from "../controllers/AuthController.js";
 
-const authRouter = Router()
+const authRouter = Router();
 
-authRouter.post('/registration',AuthController.registration)
-authRouter.post('/login',AuthController.login)
-authRouter.get('/check',AuthController.check)
+authRouter.post("/registration", AuthController.registration);
+authRouter.post("/login", AuthController.login);
+authRouter.get("/check", AuthController.check);
 
-
-
-
-export default authRouter
+export default authRouter;
