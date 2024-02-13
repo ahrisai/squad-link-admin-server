@@ -5,10 +5,7 @@ import { JwtUser } from '../queryTypes.js';
 const prisma = new PrismaClient();
 
 class Cs2Contoller {
-  updateCs2Data = async (req: Request, res: Response) => {
-    // когда юзер жмякает кнопку 'обновить в профиле'
-    console.log(req.body);
-  };
+  updateCs2Data = async (req: Request, res: Response) => {};
 
   refillingCs2data = async (req: Request, res: Response) => {
     // дозаполнение кс данных после подключения faceit
@@ -45,11 +42,7 @@ class Cs2Contoller {
         },
       });
       if (responseCs2Data) {
-        if (responseCs2Data.roles && responseCs2Data.maps) {
-          const maps = responseCs2Data.maps.map((map) => map.cs2Map.name);
-          const roles = responseCs2Data.roles.map((role) => role.cs2Role.name);
-          return res.status(200).json({ ...responseCs2Data, roles, maps });
-        }
+        return res.status(200).json(responseCs2Data);
       }
     }
   };
