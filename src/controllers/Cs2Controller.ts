@@ -1,11 +1,45 @@
 import { PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
-import { JwtUser } from '../queryTypes.js';
-
+import { Cs2Data, JwtUser } from '../queryTypes.js';
+import faceitParser from '../util/faceitParser.js';
+import axios from 'axios';
+import cheerio from 'cheerio';
 const prisma = new PrismaClient();
 
 class Cs2Contoller {
-  updateCs2Data = async (req: Request, res: Response) => {};
+  updateCs2Data = async (req: Request, res: Response) => {
+    try {
+      const steamId = req.query.steamId as string;
+      const user = req.user as JwtUser;
+
+      const { data } = await axios.get<string>(`https://faceitfinder.com/profile/${steamId}`);
+
+      const $ = cheerio.load(data);
+
+      const faceitData = $('.account-faceit-stats-single').text();
+
+      if (faceitData) {
+        const result = faceitParser(faceitData);
+        const faceitLvl = 'https://faceitfinder.com/' + $('.account-faceit-level > a > img').attr('src');
+
+        if (result) {
+          const cs2Data: Cs2Data = {
+            ...result,
+            lvlImg: faceitLvl,
+            steamId: steamId,
+          };
+
+          const cs2data = await prisma.cs2_data.updateMany({
+            where: { userId: user.id },
+            data: {
+              ...cs2Data,
+            },
+          });
+          return res.status(203).json(cs2Data);
+        }
+      }
+    } catch (error) {}
+  };
 
   refillingCs2data = async (req: Request, res: Response) => {
     // дозаполнение кс данных после подключения faceit
